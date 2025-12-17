@@ -558,6 +558,17 @@ body {
   margin: 10px 0;
 }
 
+.quote-message {
+  font-size: 1.4rem !important;
+  color: #a8e6cf !important;
+  font-weight: 500;
+  text-shadow: 0 0 10px rgba(168, 230, 207, 0.5);
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  margin: 20px 0 !important;
+}
+
 .message-icon {
   font-size: 4rem;
   display: block;
@@ -638,4 +649,300 @@ body {
     radial-gradient(circle at 80% 20%, rgba(78, 205, 196, 0.1) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+}
+
+/* ========== NEW FUN FEATURES ========== */
+
+/* Confetti Animation */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3000;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  border-radius: 3px;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Flying Santa Sleigh */
+.flying-santa {
+  position: fixed;
+  top: 80px;
+  left: -200px;
+  font-size: 2rem;
+  z-index: 50;
+  animation: fly-across 12s linear infinite;
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+}
+
+.flying-santa .sleigh {
+  margin-left: 5px;
+}
+
+@keyframes fly-across {
+  0% {
+    left: -200px;
+    top: 80px;
+  }
+  25% {
+    top: 120px;
+  }
+  50% {
+    top: 60px;
+  }
+  75% {
+    top: 100px;
+  }
+  100% {
+    left: 110%;
+    top: 80px;
+  }
+}
+
+/* Christmas Countdown */
+.countdown-container {
+  text-align: center;
+  margin: 30px auto;
+  padding: 20px;
+  max-width: 700px;
+  position: relative;
+  z-index: 10;
+}
+
+.countdown-title {
+  color: #fff;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px #ff6b6b;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+.countdown-boxes {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.countdown-box {
+  background: linear-gradient(145deg, rgba(196, 30, 58, 0.8), rgba(139, 0, 0, 0.8));
+  border-radius: 15px;
+  padding: 20px 25px;
+  min-width: 100px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+  animation: countdown-pulse 1s ease-in-out infinite;
+}
+
+.countdown-box:nth-child(2) { animation-delay: 0.25s; }
+.countdown-box:nth-child(3) { animation-delay: 0.5s; }
+.countdown-box:nth-child(4) { animation-delay: 0.75s; }
+
+@keyframes countdown-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.countdown-number {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.countdown-label {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 5px;
+}
+
+/* Favorite Card Styles */
+.wish-card.favorite {
+  background: linear-gradient(145deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.2));
+  border-color: #ffd700;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+.wish-card.clicked {
+  animation: card-bounce 0.3s ease;
+}
+
+@keyframes card-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+}
+
+.favorite-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #ffd700, #ffaa00);
+  color: #1a1a2e;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  animation: badge-shine 2s ease-in-out infinite;
+  z-index: 5;
+}
+
+@keyframes badge-shine {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+  }
+}
+
+.click-hint {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+/* Close Button in Success Modal */
+.close-btn {
+  background: linear-gradient(135deg, #4ecdc4, #2d9a8f);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-top: 25px;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
+}
+
+.close-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(78, 205, 196, 0.6);
+}
+
+/* Loading Animation for Button */
+.loading-dots {
+  display: inline-block;
+  animation: loading-dots 1.5s infinite;
+}
+
+@keyframes loading-dots {
+  0%, 20% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  80%, 100% {
+    opacity: 0;
+  }
+}
+
+.send-btn:disabled {
+  background: linear-gradient(135deg, #4ecdc4, #2d9a8f) !important;
+  cursor: wait;
+  animation: magic-pulse 1s ease-in-out infinite;
+}
+
+@keyframes magic-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(78, 205, 196, 0.8), 0 0 60px rgba(255, 215, 0, 0.4);
+  }
+}
+
+/* Message Emojis Animation */
+.message-emojis {
+  margin: 20px 0;
+  font-size: 2rem;
+}
+
+.message-emojis span {
+  display: inline-block;
+  margin: 0 8px;
+  animation: emoji-dance 1s ease-in-out infinite;
+}
+
+.message-emojis span:nth-child(1) { animation-delay: 0s; }
+.message-emojis span:nth-child(2) { animation-delay: 0.1s; }
+.message-emojis span:nth-child(3) { animation-delay: 0.2s; }
+.message-emojis span:nth-child(4) { animation-delay: 0.3s; }
+.message-emojis span:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes emoji-dance {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(-10deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(10deg);
+  }
+}
+
+/* Responsive Styles for New Features */
+@media (max-width: 768px) {
+  .countdown-boxes {
+    gap: 10px;
+  }
+
+  .countdown-box {
+    padding: 15px 18px;
+    min-width: 70px;
+  }
+
+  .countdown-number {
+    font-size: 1.8rem;
+  }
+
+  .countdown-label {
+    font-size: 0.75rem;
+  }
+
+  .flying-santa {
+    font-size: 1.5rem;
+    top: 50px;
+  }
+
+  .countdown-title {
+    font-size: 1.4rem;
+  }
 }
