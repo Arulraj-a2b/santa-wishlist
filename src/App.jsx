@@ -25,6 +25,34 @@ const fallbackQuotes = [
 // Christmas icons for random selection
 const christmasIcons = ["🎅", "🦌", "🎄", "🎁", "⭐", "❄️", "🛷", "🧝", "⛄", "🍪", "✨", "🔔"];
 
+// Custom hook for touch device detection
+const useTouchDevice = () => {
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    const checkTouch = () => {
+      setIsTouch(
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0)
+      );
+    };
+
+    checkTouch();
+  }, []);
+
+  return isTouch;
+};
+
+// Simple debounce utility function (not a hook - can be called anywhere)
+const debounce = (callback, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback(...args), delay);
+  };
+};
+
 // Christmas Countdown component
 const ChristmasCountdown = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -78,12 +106,17 @@ const ChristmasCountdown = () => {
   );
 };
 
-// Gift Card component
+// Gift Card component with touch optimization
 const WishCard = ({ item, index, isFavorite, onToggleFavorite }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
+  const isTouch = useTouchDevice();
 
-  const handleClick = () => {
+  const handleClick = (e) => {
+    // Don't toggle favorite if clicking on the link button
+    if (e.target.closest('.product-link-btn')) {
+      return;
+    }
     setIsClicked(true);
     onToggleFavorite(item.id);
     setTimeout(() => setIsClicked(false), 300);
@@ -93,8 +126,10 @@ const WishCard = ({ item, index, isFavorite, onToggleFavorite }) => {
     <div
       className={`wish-card ${isFavorite ? "favorite" : ""} ${isClicked ? "clicked" : ""}`}
       style={{ animationDelay: `${index * 0.1}s` }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => !isTouch && setIsHovered(true)}
+      onMouseLeave={() => !isTouch && setIsHovered(false)}
+      onTouchStart={() => setIsHovered(true)}
+      onTouchEnd={() => setTimeout(() => setIsHovered(false), 300)}
       onClick={handleClick}
     >
       <div className="card-glow"></div>
@@ -103,7 +138,21 @@ const WishCard = ({ item, index, isFavorite, onToggleFavorite }) => {
         <div className="gift-icon">{item.icon}</div>
         <h3 className="item-name">{item.name}</h3>
         <p className="item-description">{item.description}</p>
-        <p className="click-hint">{isFavorite ? "★ Click to unmark" : "☆ Click to mark as Most Wanted"}</p>
+        {item.link && (
+          <a
+            href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="product-link-btn"
+          >
+            🎁 View Product
+          </a>
+        )}
+        <p className="click-hint">
+          {isFavorite
+            ? `★ ${isTouch ? 'Tap' : 'Click'} to unmark`
+            : `☆ ${isTouch ? 'Tap' : 'Click'} to mark as Most Wanted`}
+        </p>
       </div>
       <div className={`sparkles ${isHovered ? "active" : ""}`}>
         <span>✨</span>
@@ -121,36 +170,35 @@ function App() {
       name: "Men's Jackets",
       icon: "🧥",
       description: "Stylish and warm jackets for the winter season",
+      link: "https://www.myntra.com/jackets/leather+retail/leather-retail-men-suede-lightweight-longline-tailored-jacket/30410399/buy?mini=true&skuId=97749695&sellerPartnerId=9180&isMnowCalloutDisplayedInSrc=false",
     },
     {
       id: 2,
       name: "Remote Control JCB",
       icon: "🚜",
       description: "Awesome RC JCB excavator for hours of fun",
+      link: "https://amzn.in/d/5kBugOn",
     },
     {
       id: 3,
       name: "Remote Control Tractor",
       icon: "🚜",
       description: "Farm-style RC tractor with realistic sounds",
+      link: "https://amzn.in/d/jgvCjaO",
     },
     {
       id: 4,
       name: "Remote Control Train",
       icon: "🚂",
       description: "Classic RC train set with tracks and accessories",
+      link: "https://amzn.in/d/cSfYRhm",
     },
     {
       id: 5,
-      name: "Boys Kids Ray-Ban Sunglasses",
-      icon: "🕶️",
-      description: "Cool Ray-Ban style sunglasses for kids",
-    },
-    {
-      id: 6,
       name: "Remote Control Lorry",
       icon: "🚛",
       description: "Big RC truck/lorry with working lights",
+      link: "https://amzn.in/d/6pMLx40",
     },
   ];
 
@@ -159,6 +207,26 @@ function App() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(fallbackQuotes[0]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDecorations, setShowDecorations] = useState(false);
+
+  // Get responsive snowflake count based on viewport width
+  const getSnowflakeCount = () => {
+    if (typeof window === 'undefined') return 50;
+    const width = window.innerWidth;
+    if (width < 480) return 15;      // 70% reduction for small phones
+    if (width < 768) return 25;      // 50% reduction for phones
+    if (width < 1024) return 35;     // 30% reduction for tablets
+    return 50;                        // Full count for desktop
+  };
+
+  // Get responsive light count based on viewport width
+  const getLightCount = () => {
+    if (typeof window === 'undefined') return 20;
+    const width = window.innerWidth;
+    if (width < 480) return 10;      // Half for small phones
+    if (width < 768) return 15;      // 75% for phones
+    return 20;                        // Full for tablets+
+  };
 
   // Toggle favorite
   const toggleFavorite = (id) => {
@@ -201,46 +269,80 @@ function App() {
     setShowSuccess(true);
   };
 
-  // Generate snowflakes
+  // Generate snowflakes with responsive count
   useEffect(() => {
-    const flakes = Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      animationDuration: 5 + Math.random() * 10,
-      animationDelay: Math.random() * 5,
-      fontSize: 10 + Math.random() * 20,
-      opacity: 0.5 + Math.random() * 0.5,
-    }));
-    setSnowflakes(flakes);
+    const generateSnowflakes = () => {
+      const count = getSnowflakeCount();
+      const flakes = Array.from({ length: count }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        animationDuration: 5 + Math.random() * 10,
+        animationDelay: Math.random() * 5,
+        fontSize: 10 + Math.random() * 20,
+        opacity: 0.5 + Math.random() * 0.5,
+      }));
+      setSnowflakes(flakes);
+    };
+
+    generateSnowflakes();
+
+    // Debounced resize handler
+    const debouncedResize = () => {
+      const newCount = getSnowflakeCount();
+      if (newCount !== snowflakes.length) {
+        generateSnowflakes();
+      }
+    };
+
+    const handleResize = debounce(debouncedResize, 300);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // Lazy load decorations on mobile for better initial performance
+  useEffect(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const delay = isMobile ? 1000 : 0;
+
+    setTimeout(() => {
+      setShowDecorations(true);
+    }, delay);
   }, []);
 
   return (
     <div className="app">
-      {/* Snow Animation */}
-      <div className="snow-container">
-        {snowflakes.map((flake) => (
-          <Snowflake
-            key={flake.id}
-            style={{
-              left: `${flake.left}%`,
-              animationDuration: `${flake.animationDuration}s`,
-              animationDelay: `${flake.animationDelay}s`,
-              fontSize: `${flake.fontSize}px`,
-              opacity: flake.opacity,
-            }}
-          />
-        ))}
-      </div>
+      {/* Snow Animation - Conditionally rendered */}
+      {showDecorations && (
+        <div className="snow-container">
+          {snowflakes.map((flake) => (
+            <Snowflake
+              key={flake.id}
+              style={{
+                left: `${flake.left}%`,
+                animationDuration: `${flake.animationDuration}s`,
+                animationDelay: `${flake.animationDelay}s`,
+                fontSize: `${flake.fontSize}px`,
+                opacity: flake.opacity,
+              }}
+            />
+          ))}
+        </div>
+      )}
 
-      {/* Flying Santa Sleigh */}
-      <div className="flying-santa">
-        <span>🦌🦌🦌</span>
-        <span className="sleigh">🛷🎅</span>
-      </div>
+      {/* Flying Santa Sleigh - Conditionally rendered */}
+      {showDecorations && (
+        <div className="flying-santa">
+          <span>🦌🦌🦌</span>
+          <span className="sleigh">🛷🎅</span>
+        </div>
+      )}
 
-      {/* Decorative lights */}
+      {/* Decorative lights - Always rendered (lighter weight) */}
       <div className="lights-container">
-        {Array.from({ length: 20 }, (_, i) => (
+        {Array.from({ length: getLightCount() }, (_, i) => (
           <div
             key={i}
             className="light-bulb"
@@ -318,7 +420,7 @@ function App() {
       {/* Success Modal with Random Quote */}
       {showSuccess && (
         <div className="success-message" onClick={() => setShowSuccess(false)}>
-          <div className="message-content">
+          <div className="message-content" onClick={(e) => e.stopPropagation()}>
             <span className="message-icon">{currentQuote.icon}</span>
             <h2>{currentQuote.title}</h2>
             <p className="quote-message">{currentQuote.message}</p>
@@ -329,7 +431,7 @@ function App() {
               <span>⭐</span>
               <span>❄️</span>
             </div>
-            <button className="close-btn">Get More Christmas Magic! ✨</button>
+            <button className="close-btn" onClick={() => setShowSuccess(false)}>Get More Christmas Magic! ✨</button>
           </div>
         </div>
       )}

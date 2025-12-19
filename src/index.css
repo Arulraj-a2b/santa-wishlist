@@ -7,6 +7,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Better text rendering on mobile devices */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 * {
@@ -19,8 +23,15 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior: none;
+
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
 }
 
 #root {
   width: 100%;
+  min-height: 100vh;
 }
