@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 // Snowflake component for snow animation
@@ -53,30 +53,30 @@ const debounce = (callback, delay) => {
   };
 };
 
+// Helper function to calculate time left until Christmas
+const calculateTimeLeft = () => {
+  const christmas = new Date(new Date().getFullYear(), 11, 25);
+  const now = new Date();
+
+  if (now > christmas) {
+    christmas.setFullYear(christmas.getFullYear() + 1);
+  }
+
+  const difference = christmas - now;
+
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
+};
+
 // Christmas Countdown component
 const ChristmasCountdown = () => {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft);
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const christmas = new Date(new Date().getFullYear(), 11, 25);
-      const now = new Date();
-
-      if (now > christmas) {
-        christmas.setFullYear(christmas.getFullYear() + 1);
-      }
-
-      const difference = christmas - now;
-
-      return {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      };
-    };
-
-    setTimeLeft(calculateTimeLeft());
     const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -163,6 +163,84 @@ const WishCard = ({ item, index, isFavorite, onToggleFavorite }) => {
   );
 };
 
+// Delivery Address component
+const DeliveryAddress = () => {
+  const [copied, setCopied] = useState(null);
+
+  const copyToClipboard = (text, type) => {
+    navigator.clipboard.writeText(text);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const fullAddress = "Number 4, first floor, 3rd E cross road, BTM stage 2, BENGALURU, KARNATAKA 560076, India";
+  const phoneNumber = "8189838485";
+  const formattedPhone = "+91 81898 38485";
+
+  return (
+    <div className="delivery-address-container">
+      <div className="delivery-badge">🎁 PRIORITY DELIVERY ZONE 🎁</div>
+      <h2 className="delivery-title">Hi Santa's here my Delivery Address 📬</h2>
+
+      <div className="delivery-card">
+        <div className="delivery-priority-ribbon">EXPRESS DELIVERY</div>
+
+        {/* Name Section */}
+        <div className="delivery-section name-section">
+          <span className="delivery-icon">👤</span>
+          <div className="delivery-info">
+            <span className="delivery-label">Deliver To:</span>
+            <strong className="delivery-value">Arulraj V</strong>
+          </div>
+        </div>
+
+        {/* Address Section */}
+        <div className="delivery-section address-section">
+          <span className="delivery-icon">📍</span>
+          <div className="delivery-info">
+            <span className="delivery-label">Delivery Address:</span>
+            <div className="delivery-value">
+              <div>Number 4, first floor</div>
+              <div>3rd E cross road, BTM stage 2</div>
+              <div className="location-highlight">BENGALURU, KARNATAKA 560076</div>
+              <div className="country-highlight">🇮🇳 India</div>
+            </div>
+          </div>
+          <button
+            className="action-btn copy-btn"
+            onClick={() => copyToClipboard(fullAddress, 'address')}
+            title="Copy address"
+          >
+            {copied === 'address' ? '✓' : '📋'}
+          </button>
+        </div>
+
+        {/* Phone Section */}
+        <div className="delivery-section phone-section">
+          <span className="delivery-icon">📱</span>
+          <div className="delivery-info">
+            <span className="delivery-label">Contact Number:</span>
+            <strong className="delivery-value phone-number">{formattedPhone}</strong>
+          </div>
+          <button
+            className="action-btn copy-btn"
+            onClick={() => copyToClipboard(phoneNumber, 'phone')}
+            title="Copy phone number"
+          >
+            {copied === 'phone' ? '✓' : '📋'}
+          </button>
+        </div>
+      </div>
+
+      <p className="delivery-note">
+        ✨ Santa's sleigh GPS is locked on this location! 🎯 ✨
+        <br />
+        <span className="delivery-eta">Expected delivery: Christmas Eve 🎄</span>
+      </p>
+    </div>
+  );
+};
+
 function App() {
   const wishItems = [
     {
@@ -208,6 +286,7 @@ function App() {
   const [currentQuote, setCurrentQuote] = useState(fallbackQuotes[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDecorations, setShowDecorations] = useState(false);
+  const snowflakeCountRef = useRef(0);
 
   // Get responsive snowflake count based on viewport width
   const getSnowflakeCount = () => {
@@ -273,6 +352,7 @@ function App() {
   useEffect(() => {
     const generateSnowflakes = () => {
       const count = getSnowflakeCount();
+      snowflakeCountRef.current = count;
       const flakes = Array.from({ length: count }, (_, i) => ({
         id: i,
         left: Math.random() * 100,
@@ -289,7 +369,7 @@ function App() {
     // Debounced resize handler
     const debouncedResize = () => {
       const newCount = getSnowflakeCount();
-      if (newCount !== snowflakes.length) {
+      if (newCount !== snowflakeCountRef.current) {
         generateSnowflakes();
       }
     };
@@ -435,6 +515,9 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Delivery Address Section */}
+      <DeliveryAddress />
 
       {/* Footer */}
       <footer className="footer">
